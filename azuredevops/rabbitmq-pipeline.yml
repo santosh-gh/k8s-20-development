@@ -12,8 +12,7 @@ variables:
 
 stages:
   - stage: Dev_UpdateGitOps
-    displayName: Update GitOps Repo (image tag)
-    dependsOn: Build
+    displayName: Update GitOps Repo
     variables:
       - group: 'k8s-dev'
     jobs:
