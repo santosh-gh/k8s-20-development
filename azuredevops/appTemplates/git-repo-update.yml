@@ -30,7 +30,7 @@ jobs:
                   cd k8s-20-deployment       
                   
                   # Update env values file (YQ preferred, but sed works if format is stable)        
-                  sed -i 's/\(tag:\s*\).*/\1$(imageTag)/' multi-helmchart/$(serviceName)/${{parameters.environment}}-values.yaml            
+                  sed -i 's/\(tag:\s*\).*/\1$(imageTag)/' multi-environment-helmchart/$(serviceName)/${{parameters.environment}}-values.yaml            
 
                   git add .
                   git commit -m "Updated $(serviceName) with Tag: $(imageTag)"
