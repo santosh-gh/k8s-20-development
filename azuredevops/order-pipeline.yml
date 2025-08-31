@@ -1,0 +1,98 @@
+trigger:
+  paths:
+    include:
+      - app/order-service/**
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: 'k8s-common'
+- name: imageTag
+  value: $(Build.BuildId)
+- name: serviceName
+  value: 'order'
+
+stages:
+  - stage: Build
+    displayName: Build and Publish
+    jobs:
+      - job: BuildPublishDockerImages
+        displayName: Build Publish Docker Images
+        steps:
+          - task: DockerInstaller@0
+            displayName: Install Docker
+            inputs:
+              dockerVersion: '17.09.0-ce'
+
+          - template: appTemplates/build.yml
+            parameters:
+              acrServiceConnection: $(acrServiceConnection)
+              imageName: $(serviceName)
+              dockerFilePath: '$(Build.sourcesdirectory)/app/order-service/Dockerfile'
+              tag: $(imageTag)
+
+  # - stage: UpdateGitOps
+  #   displayName: Update GitOps Repo (image tag)
+  #   dependsOn: Build
+  #   jobs:
+  #   - job: UpdateGitOpsRepo
+  #     displayName: Update GitOps Repo
+  #     steps:
+  #     - checkout: self
+  #       persistCredentials: true
+  #       clean: true
+
+  #     - task: Bash@3
+  #       displayName: Update GitOps Repo
+  #       inputs:
+  #         targetType: inline
+  #         script: |
+  #           git config --global user.email "santosh.mohapatra25@gmail.com"
+  #           git config --global user.name "Santosh Mohapatra"
+  #           git clone https://github.com/santosh-gh/k8s-20-deployment.git
+  #           cd k8s-19-deployment       
+            
+  #           # Update env values file (YQ preferred, but sed works if format is stable)        
+  #           sed -i 's/\(tag:\s*\).*/\1$(imageTag)/' multi-helmchart/$(imageName)/values.yaml            
+
+  #           git add .
+  #           git commit -m "Updated $(imageName) with Tag: $(imageTag)"
+  #           git push https://$(GITHUB-PAT)@github.com/santosh-gh/k8s-20-deployment.git HEAD:main
+  
+  - stage: Dev_UpdateGitOps
+    displayName: Update GitOps Repo (image tag)
+    dependsOn: Build
+    variables:
+      - group: 'k8s-dev'
+    jobs:
+      - template: appTemplates/git-repo-update.yml
+        parameters:           
+            serviceName: $(serviceName)
+            environment: dev
+            imageTag: $(imageTag)
+  
+  - stage: Test_UpdateGitOps
+    displayName: Update GitOps Repo (image tag)
+    dependsOn: Dev_UpdateGitOps
+    variables:
+      - group: 'k8s-test'
+    jobs:
+      - template: appTemplates/git-repo-update.yml
+        parameters:           
+            serviceName: $(serviceName)
+            environment: test
+            imageTag: $(imageTag)
+  
+  - stage: Prod_UpdateGitOps
+    displayName: Update GitOps Repo (image tag)
+    dependsOn: Test_UpdateGitOps
+    variables:
+      - group: 'k8s-prod'
+    jobs:
+      - template: appTemplates/git-repo-update.yml
+        parameters:           
+            serviceName: $(serviceName)
+            environment: prod
+            imageTag: $(imageTag)
+  
