@@ -27,11 +27,15 @@ jobs:
                   git config --global user.email "santosh.mohapatra25@gmail.com"
                   git config --global user.name "Santosh Mohapatra"
                   git clone https://github.com/santosh-gh/k8s-20-deployment.git
-                  cd k8s-20-deployment       
-                  
-                  # Update env values file (YQ preferred, but sed works if format is stable)        
-                  sed -i 's/\(tag:\s*\).*/\1$(imageTag)/' multi-environment-helmchart/$(serviceName)/${{parameters.environment}}-values.yaml            
+                  cd k8s-20-deployment
+
+                  if [ "${{parameters.serviceName}}" != "config" ]; then                   
+                     
+                    # Update env values file (YQ preferred, but sed works if format is stable)        
+                    sed -i 's/\(tag:\s*\).*/\1${{parameters.imageTag}}/' multi-environment-helmchart/${{parameters.serviceName}}/${{parameters.environment}}-values.yaml
+
+                  fi     
 
                   git add .
-                  git commit -m "Updated $(serviceName) with Tag: $(imageTag)"
+                  git commit -m "Updated ${{parameters.serviceName}} with Tag: ${{parameters.imageTag}}"
                   git push https://$(GITHUB-PAT)@github.com/santosh-gh/k8s-20-deployment.git HEAD:main
