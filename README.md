@@ -1,4 +1,4 @@
-# Part 19: Deploying microservice applications in AKS using Helm Chat and Azure Pipeline(Dynamically update the image tag in values.yaml)
+# Part 20: Deploying microservice applications in AKS using ArgoCD, Kustomize and Azure Pipeline
 
     Part1:   Manual Deployment (AzCLI + Docker Desktop + kubectl)  
     GitHub:  https://github.com/santosh-gh/k8s-01
@@ -168,11 +168,22 @@
 
     Part19: ArgoCD (Automate deployment using Azure Pipeline)
             Create Argo CD applications using manifests
+            CRD - Application
             Automate deployment using Azure Pipeline
 
     GitHub:  https://github.com/santosh-gh/k8s-19-development.git     
     GitHub:  https://github.com/santosh-gh/k8s-19-deployment.git
     YouTube: https://www.youtube.com/watch?v=GYMY4ZQ7V9o&list=PLr6ErUeFySVug9VG73_W2MypRez_ZycWh&index=16
+
+    Part20: ArgoCD (Automate deployment using Azure Pipeline)
+            Create Argo CD applications using manifests 
+            CRD - ApplicationSet
+            Automate deployment using Azure Pipeline
+
+    GitHub:  https://github.com/santosh-gh/k8s-20-development.git     
+    GitHub:  https://github.com/santosh-gh/k8s-20-deployment.git
+    YouTube: https://www.youtube.com/watch?v=GYMY4ZQ7V9o&list=PLr6ErUeFySVug9VG73_W2MypRez_ZycWh&index=16
+
 
 # Architesture
 
@@ -294,6 +305,45 @@
 
     6. Clean the Azure resources
 
+
+# Cretae Argo CD app
+    
+    - Manual (Argo CD Dash Board)
+      Fill in the details like Application Name, Project, Sync Policy, and the Git repository URL.
+      Specify the path within the repository where the manifests are stored.
+      Choose the destination cluster and namespace.
+      Click on Create to create the application.
+
+    - Manifest (CRD - Application)
+
+      kubectl apply -f ./argocd/applications/config-argocd-app.yaml -n argocd
+      kubectl apply -f ./argocd/applications/rabbitmq-argocd-app.yaml -n argocd
+      kubectl apply -f ./argocd/applications/order-argocd-app.yaml -n argocd
+      kubectl apply -f ./argocd/applications/product-argocd-app.yaml -n argocd
+      kubectl apply -f ./argocd/applications/store-front-argocd-app.yaml -n argocd    
+
+
+      kubectl apply -f ./argocd/applications/multi-env-multi-manifests-appset.yaml -n argocd
+      
+
+      # Delete the services/apps
+
+      kubectl delete -f ./argocd/applications/config-argocd-app.yaml -n argocd
+      kubectl delete -f ./argocd/applications/rabbitmq-argocd-app.yaml -n argocd
+      kubectl delete -f ./argocd/applications/order-argocd-app.yaml -n argocd
+      kubectl delete -f ./argocd/applications/product-argocd-app.yaml -n argocd
+      kubectl delete -f ./argocd/applications/store-front-argocd-app.yaml -n argocd     
+
+# Sync the Application
+
+    After creating the application, you will see it listed on the dashboard. 
+
+
+    acronlinestoredevuksouth001.azurecr.io
+
+
+    
+
 # Verify the Deployment
 
     k get pods
@@ -307,3 +357,17 @@
 
 
     acronlinestoredevuksouth001.azurecr.io
+
+# Update ArgoCD sync time 
+
+    k get cm -n argocd 
+    k describe cm argocd-cm -n argocd
+
+    configmap.yaml
+    kubectl apply -f configmap.yaml -n argocd
+
+
+    k rollout restart deploy argocd-repo-server -n argocd
+    k rollout restart sts argocd-application-controller
+
+    k describe cm argocd-cm -n argocd
