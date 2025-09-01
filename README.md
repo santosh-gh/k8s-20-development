@@ -314,25 +314,12 @@
       Choose the destination cluster and namespace.
       Click on Create to create the application.
 
-    - Manifest (CRD - Application)
-
-      kubectl apply -f ./argocd/applications/config-argocd-app.yaml -n argocd
-      kubectl apply -f ./argocd/applications/rabbitmq-argocd-app.yaml -n argocd
-      kubectl apply -f ./argocd/applications/order-argocd-app.yaml -n argocd
-      kubectl apply -f ./argocd/applications/product-argocd-app.yaml -n argocd
-      kubectl apply -f ./argocd/applications/store-front-argocd-app.yaml -n argocd    
-
-
+    - Manifest (CRD - ApplicationSet)
       kubectl apply -f ./argocd/applications/multi-env-multi-manifests-appset.yaml -n argocd
       
 
       # Delete the services/apps
-
-      kubectl delete -f ./argocd/applications/config-argocd-app.yaml -n argocd
-      kubectl delete -f ./argocd/applications/rabbitmq-argocd-app.yaml -n argocd
-      kubectl delete -f ./argocd/applications/order-argocd-app.yaml -n argocd
-      kubectl delete -f ./argocd/applications/product-argocd-app.yaml -n argocd
-      kubectl delete -f ./argocd/applications/store-front-argocd-app.yaml -n argocd     
+      kubectl apply -f ./argocd/applications/multi-env-multi-manifests-appset.yaml -n argocd
 
 # Sync the Application
 
