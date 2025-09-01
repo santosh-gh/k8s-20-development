@@ -351,7 +351,7 @@
     k describe cm argocd-cm -n argocd
 
     configmap.yaml
-    kubectl apply -f configmap.yaml -n argocd
+    kubectl apply -f ./argocd-config/configmap.yaml -n argocd
 
 
     k rollout restart deploy argocd-repo-server -n argocd
